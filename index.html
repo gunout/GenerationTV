@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generation TV & Radio</title>
+    <title>Generations TV & Radio</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.10/dist/hls.min.js"></script>
     <style>
@@ -340,7 +340,7 @@
             </div>
 
             <div class="channel-info">
-                <p id="currentChannel">Generation TV</p>
+                <p id="currentChannel">Generations TV</p>
                 <p id="statusText" class="status">Prêt à lire le flux</p>
             </div>
 
@@ -366,7 +366,7 @@
         </div>
 
         <footer>
-            <p>Generation TV & Radio &copy; 2023 - Tous droits réservés</p>
+            <p>Generations TV & Radio &copy; 2023 - Tous droits réservés</p>
         </footer>
     </div>
 
@@ -450,13 +450,13 @@
                     if (mediaType === 'tv') {
                         videoContainer.classList.remove('hidden');
                         audioContainer.classList.add('hidden');
-                        currentChannel.textContent = 'Generation TV';
+                        currentChannel.textContent = 'Generations TV';
                         statusText.textContent = 'Chargement du flux TV...';
                         initMedia();
                     } else {
                         videoContainer.classList.add('hidden');
                         audioContainer.classList.remove('hidden');
-                        currentChannel.textContent = 'Generation Radio';
+                        currentChannel.textContent = 'Generations Radio';
                         statusText.textContent = 'Chargement du flux radio...';
                         audioPlayer.src = radioUrl;
                         audioPlayer.load();
@@ -474,23 +474,23 @@
                         console.error("Erreur lecture audio:", e);
                         statusText.textContent = "Erreur: Impossible de lire le flux radio";
                     });
-                    statusText.textContent = "Generation Radio - Lecture en cours";
+                    statusText.textContent = "Generations Radio - Lecture en cours";
                 } else {
                     videoPlayer.play().catch(e => {
                         console.error("Erreur lecture vidéo:", e);
                         statusText.textContent = "Erreur: Impossible de lire le flux TV";
                     });
-                    statusText.textContent = "Generation TV - Lecture en cours";
+                    statusText.textContent = "Generations TV - Lecture en cours";
                 }
             });
 
             pauseBtn.addEventListener('click', function() {
                 if (videoContainer.classList.contains('hidden')) {
                     audioPlayer.pause();
-                    statusText.textContent = "Generation Radio - En pause";
+                    statusText.textContent = "Generations Radio - En pause";
                 } else {
                     videoPlayer.pause();
-                    statusText.textContent = "Generation TV - En pause";
+                    statusText.textContent = "Generations TV - En pause";
                 }
             });
 
@@ -498,11 +498,11 @@
                 if (videoContainer.classList.contains('hidden')) {
                     audioPlayer.pause();
                     audioPlayer.currentTime = 0;
-                    statusText.textContent = "Generation Radio - Arrêté";
+                    statusText.textContent = "Generations Radio - Arrêté";
                 } else {
                     videoPlayer.pause();
                     videoPlayer.currentTime = 0;
-                    statusText.textContent = "Generation TV - Arrêté";
+                    statusText.textContent = "Generations TV - Arrêté";
                 }
             });
 
