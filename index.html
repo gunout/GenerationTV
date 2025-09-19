@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generation TV & Radio</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.10/dist/hls.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -38,6 +39,29 @@
             padding: 25px;
             text-align: center;
             border-bottom: 2px solid #FFD700;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .logo-container {
+            width: 150px;
+            height: 150px;
+            margin-bottom: 20px;
+            border-radius: 50%;
+            border: 3px solid #FFD700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+        }
+        
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         
         h1 {
@@ -50,24 +74,6 @@
         .description {
             font-size: 1.2rem;
             opacity: 0.9;
-            color: #FFD700;
-        }
-        
-        .logo {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 20px;
-            background: #000;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border: 3px solid #FFD700;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-        }
-        
-        .logo i {
-            font-size: 60px;
             color: #FFD700;
         }
         
@@ -123,7 +129,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            border: none;
+            background: #000;
         }
         
         .audio-container {
@@ -225,6 +231,17 @@
             cursor: pointer;
         }
         
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: bold;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid #FFD700;
+            color: #FFD700;
+        }
+        
         footer {
             text-align: center;
             padding: 25px;
@@ -257,13 +274,9 @@
                 font-size: 0.9rem;
             }
             
-            .logo {
-                width: 100px;
-                height: 100px;
-            }
-            
-            .logo i {
-                font-size: 50px;
+            .logo-container {
+                width: 120px;
+                height: 120px;
             }
         }
         
@@ -296,8 +309,8 @@
 <body>
     <div class="container">
         <header>
-            <div class="logo">
-                <i class="fas fa-broadcast-tower"></i>
+            <div class="logo-container">
+                <img src="https://github.com/gunout/GenerationTV/blob/main/Generation.png?raw=true" alt="Generation TV Logo">
             </div>
             <h1>Generation TV & Radio</h1>
             <p class="description">Le meilleur du divertissement en direct</p>
@@ -316,7 +329,7 @@
             <div class="media-container">
                 <div id="videoContainer">
                     <div class="video-container">
-                        <iframe id="videoPlayer" src="about:blank" frameborder="0" allowfullscreen allow="autoplay"></iframe>
+                        <video id="videoPlayer" controls></video>
                     </div>
                 </div>
                 <div id="audioContainer" class="hidden">
@@ -328,6 +341,7 @@
 
             <div class="channel-info">
                 <p id="currentChannel">Generation TV</p>
+                <p id="statusText" class="status">Prêt à lire le flux</p>
             </div>
 
             <div class="controls">
@@ -367,6 +381,7 @@
             const fullscreenBtn = document.getElementById('fullscreenBtn');
             const volumeControl = document.getElementById('volumeControl');
             const currentChannel = document.getElementById('currentChannel');
+            const statusText = document.getElementById('statusText');
             const mediaBtns = document.querySelectorAll('.media-btn');
             const videoContainer = document.getElementById('videoContainer');
             const audioContainer = document.getElementById('audioContainer');
@@ -375,16 +390,51 @@
             const tvUrl = 'https://edge11.vedge.infomaniak.com/livecast/ik:generation-tv/manifest.m3u8';
             const radioUrl = 'http://generationfm.ice.infomaniak.ch/generationfm-high.mp3';
 
+            // Variables pour HLS
+            let hls = null;
+
             // Initialisation des sources
             function initMedia() {
-                // Pour la vidéo, nous utilisons une iframe avec un lecteur HLS
-                // Dans une application réelle, vous utiliseriez hls.js pour gérer le flux m3u8
-                videoPlayer.src = "about:blank";
-                audioPlayer.src = radioUrl;
+                if (Hls.isSupported()) {
+                    if (hls) {
+                        hls.destroy();
+                    }
+                    
+                    hls = new Hls();
+                    hls.loadSource(tvUrl);
+                    hls.attachMedia(videoPlayer);
+                    
+                    hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                        statusText.textContent = "Flux TV chargé - Prêt à lire";
+                    });
+                    
+                    hls.on(Hls.Events.ERROR, function(event, data) {
+                        console.error("Erreur HLS:", data);
+                        if (data.fatal) {
+                            switch(data.type) {
+                                case Hls.ErrorTypes.NETWORK_ERROR:
+                                    statusText.textContent = "Erreur réseau - Impossible de charger le flux TV";
+                                    break;
+                                case Hls.ErrorTypes.MEDIA_ERROR:
+                                    statusText.textContent = "Erreur média - Flux TV corrompu";
+                                    break;
+                                default:
+                                    statusText.textContent = "Erreur inconnue - Impossible de lire le flux TV";
+                                    break;
+                            }
+                        }
+                    });
+                } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                    // Support natif pour HLS (Safari)
+                    videoPlayer.src = tvUrl;
+                    statusText.textContent = "Flux TV chargé - Prêt à lire";
+                } else {
+                    statusText.textContent = "Votre navigateur ne supporte pas la lecture de flux HLS";
+                }
                 
-                // Pour la démonstration, nous allons simplement afficher un message
-                // car les flux peuvent avoir des restrictions CORS
-                currentChannel.textContent = "Generation TV - Prêt à lire";
+                // Configuration de la radio
+                audioPlayer.src = radioUrl;
+                audioPlayer.load();
             }
 
             // Gestionnaires d'événements pour les boutons de type de média
@@ -401,13 +451,18 @@
                         videoContainer.classList.remove('hidden');
                         audioContainer.classList.add('hidden');
                         currentChannel.textContent = 'Generation TV';
+                        statusText.textContent = 'Chargement du flux TV...';
                         initMedia();
                     } else {
                         videoContainer.classList.add('hidden');
                         audioContainer.classList.remove('hidden');
                         currentChannel.textContent = 'Generation Radio';
+                        statusText.textContent = 'Chargement du flux radio...';
                         audioPlayer.src = radioUrl;
                         audioPlayer.load();
+                        setTimeout(() => {
+                            statusText.textContent = 'Flux radio chargé - Prêt à lire';
+                        }, 1000);
                     }
                 });
             });
@@ -415,22 +470,27 @@
             // Contrôles de lecture
             playBtn.addEventListener('click', function() {
                 if (videoContainer.classList.contains('hidden')) {
-                    audioPlayer.play().catch(e => console.error("Erreur lecture audio:", e));
+                    audioPlayer.play().catch(e => {
+                        console.error("Erreur lecture audio:", e);
+                        statusText.textContent = "Erreur: Impossible de lire le flux radio";
+                    });
+                    statusText.textContent = "Generation Radio - Lecture en cours";
                 } else {
-                    // Pour la démonstration, nous allons simplement charger le flux TV
-                    // Dans une application réelle, vous utiliseriez hls.js pour lire le flux m3u8
-                    videoPlayer.src = "https://edge11.vedge.infomaniak.com/livecast/ik:generation-tv/manifest.m3u8";
-                    currentChannel.textContent = "Generation TV - Lecture en cours";
+                    videoPlayer.play().catch(e => {
+                        console.error("Erreur lecture vidéo:", e);
+                        statusText.textContent = "Erreur: Impossible de lire le flux TV";
+                    });
+                    statusText.textContent = "Generation TV - Lecture en cours";
                 }
             });
 
             pauseBtn.addEventListener('click', function() {
                 if (videoContainer.classList.contains('hidden')) {
                     audioPlayer.pause();
-                    currentChannel.textContent = "Generation Radio - En pause";
+                    statusText.textContent = "Generation Radio - En pause";
                 } else {
-                    // Pour la vidéo, nous ne pouvons pas contrôler la pause via iframe
-                    currentChannel.textContent = "Generation TV - En pause";
+                    videoPlayer.pause();
+                    statusText.textContent = "Generation TV - En pause";
                 }
             });
 
@@ -438,10 +498,11 @@
                 if (videoContainer.classList.contains('hidden')) {
                     audioPlayer.pause();
                     audioPlayer.currentTime = 0;
-                    currentChannel.textContent = "Generation Radio - Arrêté";
+                    statusText.textContent = "Generation Radio - Arrêté";
                 } else {
-                    videoPlayer.src = "about:blank";
-                    currentChannel.textContent = "Generation TV - Arrêté";
+                    videoPlayer.pause();
+                    videoPlayer.currentTime = 0;
+                    statusText.textContent = "Generation TV - Arrêté";
                 }
             });
 
@@ -466,7 +527,12 @@
             volumeControl.addEventListener('input', function() {
                 const volume = this.value;
                 audioPlayer.volume = volume;
-                // Pour la vidéo, nous ne pouvons pas contrôler le volume via iframe
+                videoPlayer.volume = volume;
+            });
+
+            // Gestion des erreurs audio
+            audioPlayer.addEventListener('error', function() {
+                statusText.textContent = "Erreur: Impossible de charger le flux radio";
             });
 
             // Initialisation au chargement
