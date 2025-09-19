@@ -1,1 +1,477 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generation TV & Radio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #000000, #1a1a1a);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            border: 2px solid #FFD700;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #000000, #1c1c1c);
+            padding: 25px;
+            text-align: center;
+            border-bottom: 2px solid #FFD700;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            color: #FFD700;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+        
+        .description {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            color: #FFD700;
+        }
+        
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            background: #000;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 3px solid #FFD700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+        
+        .logo i {
+            font-size: 60px;
+            color: #FFD700;
+        }
+        
+        .player-container {
+            padding: 25px;
+        }
+        
+        .media-selector {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+            gap: 20px;
+        }
+        
+        .media-btn {
+            padding: 12px 25px;
+            background: rgba(255, 215, 0, 0.1);
+            color: #FFD700;
+            border: 2px solid #FFD700;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .media-btn.active, .media-btn:hover {
+            background: #FFD700;
+            color: #000;
+        }
+        
+        .media-container {
+            width: 100%;
+            margin-bottom: 25px;
+        }
+        
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #FFD700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+        
+        #videoPlayer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .audio-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #FFD700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+        
+        #audioPlayer {
+            width: 100%;
+            height: 40px;
+        }
+        
+        .channel-info {
+            background: rgba(255, 215, 0, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            text-align: center;
+            border: 1px solid #FFD700;
+        }
+        
+        #currentChannel {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #FFD700;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            background: #FFD700;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        button:hover {
+            background: #FFC400;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 25px 0;
+            background: rgba(255, 215, 0, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #FFD700;
+        }
+        
+        .volume-control label {
+            color: #FFD700;
+            font-weight: bold;
+            min-width: 70px;
+        }
+        
+        #volumeControl {
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            background: #333;
+            border-radius: 5px;
+            outline: none;
+        }
+        
+        #volumeControl::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #FFD700;
+            cursor: pointer;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 25px;
+            background: linear-gradient(135deg, #000000, #1c1c1c);
+            border-top: 2px solid #FFD700;
+            font-size: 1rem;
+            color: #FFD700;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .description {
+                font-size: 1rem;
+            }
+            
+            .media-btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+            
+            button {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
+            
+            .logo {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .logo i {
+                font-size: 50px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .media-selector {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .media-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-broadcast-tower"></i>
+            </div>
+            <h1>Generation TV & Radio</h1>
+            <p class="description">Le meilleur du divertissement en direct</p>
+        </header>
 
+        <div class="player-container">
+            <div class="media-selector">
+                <div class="media-btn active" data-media="tv">
+                    <i class="fas fa-tv"></i> Generation TV
+                </div>
+                <div class="media-btn" data-media="radio">
+                    <i class="fas fa-music"></i> Generation Radio
+                </div>
+            </div>
+
+            <div class="media-container">
+                <div id="videoContainer">
+                    <div class="video-container">
+                        <iframe id="videoPlayer" src="about:blank" frameborder="0" allowfullscreen allow="autoplay"></iframe>
+                    </div>
+                </div>
+                <div id="audioContainer" class="hidden">
+                    <div class="audio-container">
+                        <audio id="audioPlayer" controls></audio>
+                    </div>
+                </div>
+            </div>
+
+            <div class="channel-info">
+                <p id="currentChannel">Generation TV</p>
+            </div>
+
+            <div class="controls">
+                <button id="playBtn">
+                    <i class="fas fa-play"></i> Lecture
+                </button>
+                <button id="pauseBtn">
+                    <i class="fas fa-pause"></i> Pause
+                </button>
+                <button id="stopBtn">
+                    <i class="fas fa-stop"></i> Arrêt
+                </button>
+                <button id="fullscreenBtn">
+                    <i class="fas fa-expand"></i> Plein écran
+                </button>
+            </div>
+
+            <div class="volume-control">
+                <label for="volumeControl">Volume:</label>
+                <input id="volumeControl" type="range" min="0" max="1" step="0.1" value="1">
+            </div>
+        </div>
+
+        <footer>
+            <p>Generation TV & Radio &copy; 2023 - Tous droits réservés</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Éléments DOM
+            const videoPlayer = document.getElementById('videoPlayer');
+            const audioPlayer = document.getElementById('audioPlayer');
+            const playBtn = document.getElementById('playBtn');
+            const pauseBtn = document.getElementById('pauseBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            const volumeControl = document.getElementById('volumeControl');
+            const currentChannel = document.getElementById('currentChannel');
+            const mediaBtns = document.querySelectorAll('.media-btn');
+            const videoContainer = document.getElementById('videoContainer');
+            const audioContainer = document.getElementById('audioContainer');
+
+            // URLs des flux
+            const tvUrl = 'https://edge11.vedge.infomaniak.com/livecast/ik:generation-tv/manifest.m3u8';
+            const radioUrl = 'http://generationfm.ice.infomaniak.ch/generationfm-high.mp3';
+
+            // Initialisation des sources
+            function initMedia() {
+                // Pour la vidéo, nous utilisons une iframe avec un lecteur HLS
+                // Dans une application réelle, vous utiliseriez hls.js pour gérer le flux m3u8
+                videoPlayer.src = "about:blank";
+                audioPlayer.src = radioUrl;
+                
+                // Pour la démonstration, nous allons simplement afficher un message
+                // car les flux peuvent avoir des restrictions CORS
+                currentChannel.textContent = "Generation TV - Prêt à lire";
+            }
+
+            // Gestionnaires d'événements pour les boutons de type de média
+            mediaBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const mediaType = this.getAttribute('data-media');
+                    
+                    // Activation du bouton
+                    mediaBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Changement de média
+                    if (mediaType === 'tv') {
+                        videoContainer.classList.remove('hidden');
+                        audioContainer.classList.add('hidden');
+                        currentChannel.textContent = 'Generation TV';
+                        initMedia();
+                    } else {
+                        videoContainer.classList.add('hidden');
+                        audioContainer.classList.remove('hidden');
+                        currentChannel.textContent = 'Generation Radio';
+                        audioPlayer.src = radioUrl;
+                        audioPlayer.load();
+                    }
+                });
+            });
+
+            // Contrôles de lecture
+            playBtn.addEventListener('click', function() {
+                if (videoContainer.classList.contains('hidden')) {
+                    audioPlayer.play().catch(e => console.error("Erreur lecture audio:", e));
+                } else {
+                    // Pour la démonstration, nous allons simplement charger le flux TV
+                    // Dans une application réelle, vous utiliseriez hls.js pour lire le flux m3u8
+                    videoPlayer.src = "https://www.youtube.com/embed/0e3GPea1Tyg?autoplay=1";
+                    currentChannel.textContent = "Generation TV - Lecture en cours";
+                }
+            });
+
+            pauseBtn.addEventListener('click', function() {
+                if (videoContainer.classList.contains('hidden')) {
+                    audioPlayer.pause();
+                    currentChannel.textContent = "Generation Radio - En pause";
+                } else {
+                    // Pour la vidéo, nous ne pouvons pas contrôler la pause via iframe
+                    currentChannel.textContent = "Generation TV - En pause";
+                }
+            });
+
+            stopBtn.addEventListener('click', function() {
+                if (videoContainer.classList.contains('hidden')) {
+                    audioPlayer.pause();
+                    audioPlayer.currentTime = 0;
+                    currentChannel.textContent = "Generation Radio - Arrêté";
+                } else {
+                    videoPlayer.src = "about:blank";
+                    currentChannel.textContent = "Generation TV - Arrêté";
+                }
+            });
+
+            fullscreenBtn.addEventListener('click', function() {
+                if (videoContainer.classList.contains('hidden')) {
+                    // Pour l'audio, on ne peut pas mettre en plein écran
+                    if (document.documentElement.requestFullscreen) {
+                        document.documentElement.requestFullscreen();
+                    }
+                } else {
+                    if (videoPlayer.requestFullscreen) {
+                        videoPlayer.requestFullscreen();
+                    } else if (videoPlayer.webkitRequestFullscreen) {
+                        videoPlayer.webkitRequestFullscreen();
+                    } else if (videoPlayer.msRequestFullscreen) {
+                        videoPlayer.msRequestFullscreen();
+                    }
+                }
+            });
+
+            // Contrôle de volume
+            volumeControl.addEventListener('input', function() {
+                const volume = this.value;
+                audioPlayer.volume = volume;
+                // Pour la vidéo, nous ne pouvons pas contrôler le volume via iframe
+            });
+
+            // Initialisation au chargement
+            initMedia();
+        });
+    </script>
+</body>
+</html>
